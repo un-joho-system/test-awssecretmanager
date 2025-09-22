@@ -1,161 +1,77 @@
 # セットアップガイド
 
-このガイドでは、AWS Secrets Manager移行プロジェクトの完全なセットアップ手順を説明します。
+このプロジェクトは Windows と macOS の両方でサポートされています。お使いの環境に応じて、適切なガイドを選択してください。
 
-## 📋 前提条件
+## 🖥️ オペレーティングシステム別ガイド
 
-### システム要件
-- Windows 10/11
-- Python 3.12+
-- Git
-- インターネット接続
+### Windows
+Windows 10/11 ユーザーはこちら：
+**[Windows セットアップガイド](setup-guide-windows.md)**
+
+**特徴:**
+- Windows Package Manager (winget) を使用
+- PowerShell/Command Prompt/Git Bash での作業
+- Windows固有のパス設定
+
+### macOS  
+macOS ユーザーはこちら：
+**[macOS セットアップガイド](setup-guide-macos.md)**
+
+**特徴:**
+- Homebrew パッケージマネージャーを使用
+- Terminal/Zsh での作業
+- macOS固有のセキュリティ設定
+
+## 📋 共通前提条件
+
+両環境で共通して必要なものです：
 
 ### アカウント要件
-- GitHubアカウント
-- AWSアカウント（IAM権限必要）
+- ✅ **GitHubアカウント** - リポジトリ管理用
+- ✅ **AWSアカウント** - Secrets Manager利用用（IAM権限必要）
 
-## 🛠️ ツールのインストール
+### 必要なツール
+- ✅ **Python 3.12+** - アプリケーション実行用
+- ✅ **Git** - バージョン管理用
+- ✅ **GitHub CLI** - GitHub操作自動化用
+- ✅ **AWS CLI** - AWS操作自動化用
 
-### 1. GitHub CLIのインストール
+## 🚀 インストール後の共通手順
 
-GitHub CLIを使用することで、コマンドラインからリポジトリの作成やGitHub Secretsの管理が可能になります。
+どちらのOSでも、ツールインストール後は以下の手順で進めます：
 
-#### Windows Package Manager (winget) を使用
-```bash
-# GitHub CLIをインストール
-winget install --id GitHub.cli
+1. **認証設定**
+   - GitHub CLIでのログイン
+   - AWS CLIでの認証設定
 
-# インストール後、新しいターミナルを開くか、パスを更新
-export PATH="/c/Program Files/GitHub CLI:$PATH"
+2. **プロジェクトセットアップ**  
+   - リポジトリのクローン
+   - Python仮想環境の作成
+   - 依存関係のインストール
 
-# 動作確認
-gh --version
-```
+3. **動作確認**
+   - ローカル環境での実行テスト
+   - AWS/GitHub接続確認
 
-#### 手動インストール（wingetが利用できない場合）
-1. https://cli.github.com/ にアクセス
-2. 「Download for Windows」をクリック
-3. MSIファイルをダウンロードして実行
-4. インストール後、新しいターミナルを開く
+## 💡 選択に迷った場合
 
-### 2. AWS CLIのインストール
+- **普段Windowsを使用**: → [Windows ガイド](setup-guide-windows.md)
+- **普段macを使用**: → [macOS ガイド](setup-guide-macos.md)  
+- **両方の環境で作業する**: 両方のガイドを参照してください
 
-```bash
-# AWS CLIをインストール
-winget install --id Amazon.AWSCLI
+## 🔄 次のステップ
 
-# または手動ダウンロード: https://aws.amazon.com/cli/
-```
+セットアップ完了後は、以下のドキュメントに進んでください：
 
-### 3. Pythonの確認
-```bash
-# Pythonバージョンの確認（3.12以上必要）
-python --version
-
-# pipの更新
-python -m pip install --upgrade pip
-```
-
-## 🔑 認証設定
-
-### GitHub認証
-```bash
-# GitHub CLIでログイン
-gh auth login
-
-# 以下の選択肢を順に選択：
-# 1. GitHub.com
-# 2. HTTPS
-# 3. Yes (Git認証)
-# 4. Login with a web browser
-
-# 認証確認
-gh auth status
-```
-
-### AWS認証
-```bash
-# AWS CLIの設定
-aws configure
-
-# 以下を入力：
-# - AWS Access Key ID: [AWSコンソールで取得]
-# - AWS Secret Access Key: [AWSコンソールで取得]
-# - Default region: ap-northeast-1
-# - Default output format: json
-```
-
-## 📦 プロジェクトのセットアップ
-
-### 1. リポジトリのクローン
-```bash
-# プロジェクトをクローン
-git clone https://github.com/un-joho-system/test-awssecretmanager.git
-cd test-awssecretmanager
-```
-
-### 2. Python環境の準備
-```bash
-# 仮想環境の作成
-python -m venv venv
-
-# 仮想環境の有効化
-# Windows:
-venv\Scripts\activate
-# Git Bash:
-source venv/Scripts/activate
-
-# 依存関係のインストール
-pip install -r requirements.txt
-```
-
-### 3. 環境変数の設定
-```bash
-# .envファイルの作成
-cp .env.example .env
-
-# .envファイルを編集して適切な値を設定
-# 注意: このファイルは機密情報を含むため、Gitにコミットしない
-```
-
-## ✅ 動作確認
-
-### ローカル環境での確認
-```bash
-# アプリケーションの実行
-python app.py
-```
-
-### AWS接続の確認
-```bash
-# AWS接続テスト
-aws sts get-caller-identity
-```
-
-### GitHub接続の確認
-```bash
-# GitHub接続テスト
-gh repo view
-```
-
-## 🚨 トラブルシューティング
-
-### GitHub CLI関連
-- **コマンドが見つからない**: パスが設定されていない可能性があります。新しいターミナルを開くか、パスを手動で設定してください
-- **認証エラー**: `gh auth login` を再実行してください
-
-### AWS CLI関連
-- **認証エラー**: AWS認証情報を確認し、`aws configure` を再実行してください
-- **権限エラー**: IAMユーザーに適切な権限が付与されているか確認してください
-
-### Python関連
-- **モジュールが見つからない**: 仮想環境が有効化されているか、依存関係が正しくインストールされているか確認してください
+- [AWS Secrets Manager移行ガイド](migration-guide.md)
+- [CI/CD自動化セットアップ](automation-setup.md)
 
 ## 📞 サポート
 
-問題が発生した場合は、プロジェクトのIssueページでお問い合わせください：
-https://github.com/un-joho-system/test-awssecretmanager/issues
+セットアップで問題が発生した場合：
+- まず該当OS固有のトラブルシューティング章を確認
+- 解決しない場合はプロジェクトのIssueでお問い合わせください
 
 ---
 
-**次のステップ**: [AWS Secrets Manager移行ガイド](migration-guide.md)
+**⚠️ 重要**: どちらのOSでも、機密情報（`.env`ファイル等）は絶対にGitにコミットしないでください。
