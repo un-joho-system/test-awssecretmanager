@@ -65,7 +65,10 @@ aws-secret-test/
 ## 📖 ドキュメント
 
 詳細なセットアップと移行手順は以下のドキュメントを参照：
-- [セットアップガイド](docs/setup-guide.md) - ツールのインストールと初期設定
+- [セットアップガイド](docs/setup-guide.md) - OS選択とツールのインストール
+  - [Windows版](docs/setup-guide-windows.md) - Windows固有の手順
+  - [macOS版](docs/setup-guide-macos.md) - macOS固有の手順
+- [GitHub Secretsガイド](docs/github-secrets-guide.md) - CI/CD用認証情報の管理
 - [AWS Secrets Manager移行ガイド](docs/migration-guide.md) - 機密情報の移行手順
 - [自動化セットアップ手順](docs/automation-setup.md) - CI/CDパイプラインの構築
 
