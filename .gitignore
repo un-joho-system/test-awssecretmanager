@@ -131,5 +131,11 @@ Thumbs.db
 *.p12
 *.jks
 *credentials*
-*secrets*
 *private*
+
+# Generated secret files
+aws-secrets.json
+github-secrets.sh
+.env
+.env.local
+.env.production
