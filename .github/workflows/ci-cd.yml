@@ -1,0 +1,85 @@
+name: AWS Secrets Manager Integration Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run traditional app test
+      run: |
+        echo "=== Testing traditional .env app ==="
+        python app.py
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        API_KEY: test_api_key_12345
+        SECRET_TOKEN: test_secret_token_67890
+        DEBUG_MODE: true
+    
+    - name: Run Secrets Manager integrated app test
+      run: |
+        echo "=== Testing Secrets Manager integrated app ==="
+        python app_with_secrets_manager.py
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        API_KEY: test_api_key_12345
+        SECRET_TOKEN: test_secret_token_67890
+        DEBUG_MODE: true
+    
+    - name: Run secret classification test
+      run: |
+        echo "=== Testing secret classification tool ==="
+        cp .env.example .env
+        python classify_secrets.py
+    
+    - name: Validate generated files
+      run: |
+        echo "=== Validating generated files ==="
+        if [ -f "aws-secrets.json" ]; then
+          echo "✅ aws-secrets.json generated successfully"
+          python -m json.tool aws-secrets.json > /dev/null && echo "✅ JSON is valid"
+        else
+          echo "❌ aws-secrets.json not found"
+          exit 1
+        fi
+        
+        if [ -f "github-secrets.sh" ]; then
+          echo "✅ github-secrets.sh generated successfully"
+          bash -n github-secrets.sh && echo "✅ Shell script syntax is valid"
+        else
+          echo "❌ github-secrets.sh not found"
+          exit 1
+        fi
+    
+    - name: Security scan
+      run: |
+        echo "=== Security scan ==="
+        # Check if any secrets are accidentally committed
+        if grep -r "AKIA[0-9A-Z]{16}" . --exclude-dir=.git || \
+           grep -r "[0-9a-zA-Z/+]{40}" . --exclude-dir=.git | grep -v "test_"; then
+          echo "❌ Potential AWS credentials found in repository"
+          exit 1
+        else
+          echo "✅ No hardcoded credentials detected"
+        fi
